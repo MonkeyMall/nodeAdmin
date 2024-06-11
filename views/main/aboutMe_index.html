@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>关于我的首页</title>
+		<link rel="stylesheet" href="/public/css/swiper.min.css">
+		<link rel="stylesheet" media="screen" href="/public/css/aboutMe_style.css">
+	</head>
+	<body>
+	<div class="topBar">
+		<ul class="topBarCons">
+			<li>首页</li>
+			<li>作品</li>
+			<li>
+				<img src="/public/images/me.jpg">
+			</li>
+			<li>能力</li>
+			<li>联系</li>
+		</ul>
+	</div>
+	<div class="swiper-container">
+		<div class="swiper-wrapper">
+			<div class="swiper-slide">
+				<div class="swiper-cons">
+					<h4>我是一名前端开发工程师</h4>
+					<p>代码改变世界，我只想改善自己。</p>
+				</div>
+			</div>
+			<div class="swiper-slide">
+				<div class="swiper-cons">
+					<ul>
+						<li>
+							<div>
+								<img src="/public/images/banner1.jpg">
+							</div>
+							<p>
+								我的项目
+							</p>
+						</li>
+						<li></li>
+						<li></li>
+						<li></li>
+						<li></li>
+						<li></li>
+					</ul>
+				</div>
+			</div>
+			<div class="swiper-slide">
+				<div class="swiper-cons">
+					<h4>我是一名前端开发工程师</h4>
+					<p>代码改变世界，我只想改善自己。</p>
+				</div>
+			</div>
+			<div class="swiper-slide">
+				<div class="swiper-cons">
+					<h4>我是一名前端开发工程师</h4>
+					<p>代码改变世界，我只想改善自己。</p>
+				</div>
+			</div>
+		</div>
+		<!-- Add Pagination -->
+		<!--<div class="swiper-pagination"></div>-->
+
+		<div class="swiper-button-next"></div>
+		<div class="swiper-button-prev"></div>
+	</div>
+	</body>
+	<script src="/public/js/swiper.min.js"></script>
+</html>
+<script>
+    var swiper = new Swiper('.swiper-container', {
+        pagination: '.swiper-pagination',
+        nextButton: '.swiper-button-next',
+        prevButton: '.swiper-button-prev',
+        direction: 'vertical',
+        slidesPerView: 1,
+        paginationClickable: true,
+        spaceBetween: 30,
+        mousewheelControl: true
+    });
+</script>
+<script>
+	var _hmt = _hmt || [];
+	(function() {
+		var hm = document.createElement("script");
+		hm.src = "https://hm.baidu.com/hm.js?c99f49869b064a7b101d850e21ab5f4b";
+		var s = document.getElementsByTagName("script")[0];
+		s.parentNode.insertBefore(hm, s);
+	})();
+</script>

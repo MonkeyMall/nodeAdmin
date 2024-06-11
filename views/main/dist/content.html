@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>博客重构-详情页面</title>
+    <link rel="stylesheet" href="./css/common.css">
+<link rel="stylesheet" href="./css/public.css">
+<link rel="stylesheet" href="http://at.alicdn.com/t/font_519740_v5wxrnwfdnr.css">
+<link rel="stylesheet" href="./css/style2.css">
+
+</head>
+<body>
+    <div class="header f12 bold">
+    <div class="header_box box between">
+        <a href="/">
+            <div class="logo pd5 fl">
+                <img src="./images/logo-default-white.png">
+            </div>
+            <div class="border_right fl mt12 ml5 mr5"></div>
+            <div class="box column f12 mt10 ml8 fl">
+                <p class="line20">关注前沿技术</p>
+                <p class="line20">专注前端开发</p>
+            </div>
+        </a>
+        
+        <ul class="box">
+            
+        </ul>
+    </div>
+</div>
+    <div class="content mt50 f16" id="cons">
+        <script id="conshtml" type="text/html">
+            <div class="con_left fl mr30 pd15">
+                <h4 class="pd15 f25">{{title}}</h4>
+                <div class="box between content_introduce f12">
+                    <div class="pd-l15 pd-r15 pd-t10 pd-b10">
+                        <i class="iconfont icon-datezhuanhuan f12"></i>
+                        <span>{{startTime}}</span>
+                    </div>
+                    <div class="pd-l15 pd-r15 pd-t10 pd-b10">
+                        <i class="iconfont icon-browse f12"></i>
+                        <span>{{views}}</span>
+                    </div>
+                </div>
+                <div class="">
+                    <h4 class="f20 pd-l15 pd-r15 pd-t15 pd-b10">前言</h4>
+                    <p class="f14 pd-b10 content_qy pd-l15 pd-r15 pd-t10 pd-b10">{{description}}</p>
+                </div>
+                <div class="conshtml f14">
+                    {{#content}}
+                </div>
+                <p class="pd-l15 pd-r15 pd-b10 pd-t10 bottomInfo f14">
+                    转载请注明:<span class="ml10">https://www.songyanbin.com</span>
+                </p>
+            </div>
+            <div class="con_right fl">
+                <div class="about mb20 f14">
+    <div class="title line50 f16 bold pd-l15 pd-r15">
+        <i class="iconfont icon-xiaoxi f12"></i>
+        关于我
+    </div>
+    <div class="pd-l15 pd-r15 pd-t10 pd-b10">
+        <p>抿圪斗前端博客，是抿圪斗个人技术博客，主要记录和总结前端工作中常用的知识。</p>
+        <p class="mt10">本博客所有内容若需转载请联系我。</p>
+    </div>
+    <p class="pd-l15 pd-r15 pd-b15">
+        <span class="bold">抿圪斗QQ群：</span>
+        <span>598146649</span>
+    </p>
+    
+</div>
+                <div class="hotArticle f16">
+    <div class="title line50 f16 bold pd-l15 pd-r15">
+        <i class="iconfont icon-hot f12"></i>
+        热门文章
+    </div>
+    <ul class="pd-l15 pd-r15 pd-t10 pd-b10">
+        
+    </ul>
+</div>
+            </div>
+        </script>
+    </div>
+    <div class="foot f12 mt30">
+    <div class="foot_box box between">
+        <p>Copyright © Aaron All Rights Reserved 京ICP备17007771号-1</p>
+        <p>逆水行舟,不进则退. ——宋彦斌</p>
+    </div>
+</div>
+</body>
+<script type="text/javascript" src="./js/public/jQuery-2.1.4.min.js"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script src="./js/public/template.js"></script>
+<script type="text/javascript" src="./js/public/common.js"></script>
+<script src="./js/public/public.js"></script>
+<script src="./js/content.js"></script>
+</html>
