@@ -8,6 +8,7 @@ var User = require('../models/users');
 var Category = require('../models/category');
 var Content = require('../models/contents');
 var Comments = require('../models/comment');
+var Compony = require('../models/compony');
 var Wechatusers = require('../models/wechatusers');
 var VideoList = require('../models/videoList');
 var Pushsource = require('../models/pushsource');
@@ -36,13 +37,14 @@ var getIp = function(req) {
     }  
     return ip;  
 };  
-
+// --------------新版需要的接口
 /*
  * 登陆逻辑
  */
 router.post('/user/login',function(req,res,next){
 	var username =  req.body.username;
 	var password = req.body.password;
+  console.log('执行了', username)
 	if(username == ''){
 		responseData.code = 5;
 		responseData.message = '用户名不能为空';
@@ -71,12 +73,9 @@ router.post('/user/login',function(req,res,next){
 		responseData.data = {
 			username : userInfo.username
 		}
-
-        res.cookie("account", username);
-
-
-        // res.cookie('asd', userInfo.username);
-        // 设置cookies 返回给客户端
+    res.cookie("account", username);
+    // res.cookie('asd', userInfo.username);
+    // 设置cookies 返回给客户端
 		req.cookies.set('userInfo',JSON.stringify({
 			_id : userInfo._id,
 			username : userInfo.username
@@ -95,7 +94,88 @@ router.post('/user/exit',function(req,res,next){
 	res.json(responseData);
 	return;
 })
-
+// 管理后台
+/*
+ * 创建公司接口
+ */
+router.post('/company/add',function(req,res,next){
+  var name = req.body.name || '公司名' // 公司名
+  var logo = req.body.logo || 'logo' // logo
+  var industry = req.body.industry || '行业'  // 行业
+  var scale = req.body.scale || '规模' // 规模
+  var accumulation = req.body.accumulation || '公积金'  // 公积金
+  var insurance = req.body.insurance || '五险' // 五险
+  var welfare = req.body.welfare || '福利'  // 福利
+  var address = req.body.address || '位置'  // 位置
+  console.log('创建公司',req.body)
+	
+  // 查找数据库是否有同名的用户 两种方法其实一个意思
+	Compony.findOne({
+		name:name
+	}).then(function(componyInfo){
+    console.log('查找公司',res)
+		if(componyInfo){
+     console.log('查找公司1')
+			responseData.code = 500;
+			responseData.message = '不要重复添加！';
+			res.json(responseData);
+			return;
+		}
+		var compony = new Compony({
+      name: name,
+      logo: logo,
+      industry: industry,
+      scale: scale,
+      accumulation: accumulation,
+      insurance: insurance,
+      welfare: welfare,
+      address: address,
+      startTime:Number(Date.parse(new Date()))
+    });
+    console.log('查找公司2')
+		return compony.save().then(function(componyInfo){
+      responseData.code = 200;
+      responseData.message = '添加成功';
+      res.json(responseData);
+  });
+	}).then(function(res){
+    console.log('查找公司3')
+		responseData.code = 200;
+		responseData.message = '添加成功';
+		res.json(responseData);
+	})
+})
+/*
+ * 公司列表
+ */
+router.get('/company/list',function(req,res,next){
+	console.log(req.query)
+    var page = Number(req.query.page || 1);
+    var limte = Number(req.query.limte || 10);
+    var pages = 0;
+//	res.send('shouye')
+    //从数据库中获取网站的分类名称
+    // Category.find().then(function(categories){
+        //查询数据库中的数据的条数
+        Compony.count().then(function(count) {
+            pages = Math.ceil(count / limte);//客户端应该显示的总页数
+            page = Math.min(page, pages);//page取值不能超过pages
+            page = Math.max(page, 1);//page取值不能小于1
+            var skip = (page - 1) * limte;
+            //sort()排序  -1 降序 1 升序
+            //populate('category')  填充关联内容的字段的具体内容(关联字段在指定另一张表中的具体内容)
+            Compony.find().sort({_id: -1}).limit(limte).skip(skip).then(function (contents) {
+                responseData.code = 200;
+                responseData.message = "列表获取成功";
+                responseData.count = count;
+                responseData.data = contents;
+                res.json(responseData);
+                return;
+            })
+        })
+    // })
+})
+// ------------新版需要的接口结束
 router.post('/articlesList',function(req,res,next){
 	var page =  req.body.page;
 	var limte = 10;
