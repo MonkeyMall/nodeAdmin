@@ -10,11 +10,13 @@ var Schema = mongoose.Schema;
 module.exports = new mongoose.Schema ({
 	//关联字段
 	 category:{
-		type: mongoose.Schema.Types.ObjectId,
-		ref:'Category'//引用另一张表
+    type: String,
+		 default:''//默认值
+		// type: mongoose.Schema.Types.ObjectId,
+		// ref:'Category'//引用另一张表
 	 },
 	 title:  String,
-     posted:{
+   posted:{
 		type:Boolean,
 		default:true
 	 },
