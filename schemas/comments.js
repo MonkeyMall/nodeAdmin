@@ -7,7 +7,7 @@ var Schema = mongoose.Schema;
 module.exports = new mongoose.Schema ({
 	contentId: {//评论文章的ID
 		 type: mongoose.Schema.Types.ObjectId,//关联字段
-		 ref:'Contents'//引用另一张表
+		 ref:'Content'//引用另一张表
 	},
 
 	userId: {//req.body.userId

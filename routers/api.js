@@ -365,15 +365,35 @@ router.post('/comment/add',function(req,res,next){
  * 侃言内容的评论列表
  */
 router.post('/comment/commentList',function(req,res,next){
+  var page = Number(req.query.page || 1);//req.query.page 获取?后面的页数
+	var limte = 10;
+	var pages = 0;
 	var contentId = req.body.contentId;//评论文章的ID
-	Comments.find({
-		contentId:contentId
-	}).then(function(comments){
-		responseData.code = 24;
-		responseData.message = "侃言评论获取成功";
-		responseData.data = comments;
-		res.json(responseData);
-		return;
-	})
+
+  Comments.count().then(function(count){
+    pages = Math.ceil(count / limte);//客户端应该显示的总页数
+		page = Math.min(page,pages);//page取值不能超过pages
+		page = Math.max(page,1);//page取值不能小于1
+		var skip = (page - 1) * limte;
+    //sort()排序  -1 降序 1 升序
+    Comments.find({
+      contentId:contentId
+    }).sort({_id: -1}).limit(limte).skip(skip).populate('contentId').populate('userId').then(function(comments){
+      console.log('comments', comments)
+      responseData.code = 200;
+      responseData.message = "侃言评论获取成功";
+      responseData.data = comments;
+      // responseData.userInfo = req.userInfo;
+      responseData.page = page
+      responseData.count = count
+      responseData.pages = pages
+      responseData.limte = limte
+      res.json(responseData);
+      return;
+    })
+
+  })
+
+
 })
 module.exports = router;
