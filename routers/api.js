@@ -28,7 +28,7 @@ router.use(function(req,res,next){
  *首页获取数据库的数据
  *
  */
-var getIp = function(req) {  
+var getIp = function(req,res) {  
     var ip = req.headers['x-real-ip'] ||  
         req.headers['x-forwarded-for'] ||  
         req.socket.remoteAddress || '';  
@@ -37,6 +37,19 @@ var getIp = function(req) {
     }  
     return ip;  
 };  
+function isLogin(req,res) {
+  console.log(11, req.userInfo)
+  var username = req.userInfo.username || '';
+  if(!username){
+		responseData.code = 501;
+		responseData.message = "对不起,您还没有登陆";
+		res.json(responseData);
+		return;
+	}
+}
+function setCookie(req) {
+
+}
 /*
  * 登陆逻辑
  */
@@ -97,14 +110,15 @@ router.post('/user/exit',function(req,res,next){
  * 创建公司接口
  */
 router.post('/company/add',function(req,res,next){
-  var name = req.body.name || '公司名' // 公司名
-  var logo = req.body.logo || 'logo' // logo
-  var industry = req.body.industry || '行业'  // 行业
-  var scale = req.body.scale || '规模' // 规模
-  var accumulation = req.body.accumulation || '公积金'  // 公积金
-  var insurance = req.body.insurance || '五险' // 五险
-  var welfare = req.body.welfare || '福利'  // 福利
-  var address = req.body.address || '位置'  // 位置
+  isLogin(req,res)
+  var name = req.body.name || '' // 公司名
+  var logo = req.body.logo || '' // logo
+  var industry = req.body.industry || ''  // 行业
+  var scale = req.body.scale || '' // 规模
+  var accumulation = req.body.accumulation || ''  // 公积金
+  var insurance = req.body.insurance || '' // 五险
+  var welfare = req.body.welfare || ''  // 福利
+  var address = req.body.address || ''  // 位置
   console.log('创建公司',req.body)
 	
   // 查找数据库是否有同名的用户 两种方法其实一个意思
@@ -147,6 +161,7 @@ router.post('/company/add',function(req,res,next){
  * 编辑公司接口
  */
 router.post('/company/edit',function(req,res,next){
+  isLogin(req,res)
   var id = req.body.id || ''
   var name = req.body.name || '' // 公司名
   var logo = req.body.logo || '' // logo
@@ -191,6 +206,7 @@ router.post('/company/edit',function(req,res,next){
  * 公司列表
  */
 router.get('/company/list',function(req,res,next){
+  isLogin(req,res)
 	console.log(req.query)
     var name = req.query.name || '';
     var page = Number(req.query.page || 1);
@@ -225,6 +241,7 @@ router.get('/company/list',function(req,res,next){
  * 侃言创建
  */
 router.post('/ridicule/add',function(req,res,next){
+  isLogin(req,res)
   var category = req.body.category || 1; //文章的分类
 	var title = req.body.title || ''; //文章的标题
 	var posted = req.body.posted || false;//是否发布
@@ -296,6 +313,7 @@ router.post('/ridicule/add',function(req,res,next){
  * 侃言列表
  */
 router.get('/ridicule/list',function(req,res,next){
+  isLogin(req,res)
   var page = Number(req.query.page || 1);
   var limte = Number(req.query.limte || 10);
   var pages = 0;
@@ -323,8 +341,10 @@ router.get('/ridicule/list',function(req,res,next){
  * 侃言内容的评论
  */
 router.post('/comment/add',function(req,res,next){
+  isLogin(req,res)
 	var contentId = req.body.contentId;//评论侃言的ID
 	var userId = req.userInfo;//评论人的ID
+  var creatUserId = req.body.creatUserId;//评论人的ID
 	var commentContents =  req.body.commentContents;//评论内容
 	if(!contentId){
 		responseData.code = 500;
@@ -348,6 +368,7 @@ router.post('/comment/add',function(req,res,next){
 	var comment = new Comments({
 		contentId:contentId,
 		userId:userId,
+    creatUserId:creatUserId,
 		commentContents:commentContents,
 		startTime:Number(Date.parse(new Date()))
 	});
@@ -365,6 +386,7 @@ router.post('/comment/add',function(req,res,next){
  * 侃言内容的评论列表
  */
 router.post('/comment/commentList',function(req,res,next){
+  isLogin(req,res)
   var page = Number(req.query.page || 1);//req.query.page 获取?后面的页数
 	var limte = 10;
 	var pages = 0;
@@ -378,7 +400,7 @@ router.post('/comment/commentList',function(req,res,next){
     //sort()排序  -1 降序 1 升序
     Comments.find({
       contentId:contentId
-    }).sort({_id: -1}).limit(limte).skip(skip).populate('contentId').populate('userId').then(function(comments){
+    }).sort({_id: -1}).limit(limte).skip(skip).populate('contentId').populate('creatUserId').populate('userId').then(function(comments){
       console.log('comments', comments)
       responseData.code = 200;
       responseData.message = "侃言评论获取成功";
