@@ -72,8 +72,8 @@ router.post('/user/login',function(req,res,next){
 	User.findOne({
 		username:username,
 		password:password
-	}).then(function(userInfo){
-		if(!userInfo){
+	}).then(function(userInfo) {
+		if(!userInfo) {
 			responseData.code = 7;
 			responseData.message = '用户名不存在,请先注册';
 			res.json(responseData);
@@ -93,6 +93,73 @@ router.post('/user/login',function(req,res,next){
 		}));
 		res.json(responseData);
 		return;
+	}).catch(function(err) {
+	  console.log(err)
+	})
+})
+/*
+ * 用户注册逻辑
+ */
+router.post('/user/register',function(req,res,next){
+	var username =  req.body.username;
+	var password = req.body.password;
+	var repassword = req.body.repassword;
+	var time = req.body.time;
+	console.log("注册的时间：",time)
+	console.log(username)
+	console.log(password)
+	console.log(repassword)
+	if(username == ''){
+		responseData.code = 01;
+		responseData.message = '用户名不能为空';
+		res.json(responseData);
+		return;
+	}
+    if(username.length > 10){
+        responseData.code = 02;
+        responseData.message = '用户名不能超过10个字符';
+        res.json(responseData);
+        return;
+    }
+    if(password.length < 6){
+        responseData.code = 03;
+        responseData.message = '密码不能少于6位';
+        res.json(responseData);
+        return;
+    }
+	if(password == ''){
+		responseData.code = 04;
+		responseData.message = '密码不能为空';
+		res.json(responseData);
+		return;
+	}
+	if(repassword != password){
+		responseData.code = 05;
+		responseData.message = '两次输入的密码不一致';
+		res.json(responseData);
+		return;
+	}
+	// 查找数据库是否有同名的用户 两种方法其实一个意思
+	User.findOne({
+		username:username
+	}).then(function(userInfo){
+		if(userInfo){//有的话就标示数据库里面有这个用户
+			responseData.code = 4;
+			responseData.message = '用户名重复';
+			res.json(responseData);
+			return;
+		}
+		//保存用户注册的账号到数据库中
+		var user = new User({
+			username:username,
+			password:password,
+            time:time
+		});
+		return user.save();
+	}).then(function(newUserInfo){
+		responseData.code = 8;
+		responseData.message = '注册成功';
+		res.json(responseData);
 	})
 })
 /*
