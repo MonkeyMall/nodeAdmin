@@ -38,7 +38,6 @@ var getIp = function(req,res) {
     return ip;  
 };  
 function isLogin(req,res) {
-  console.log(11, req.userInfo)
   var username = req.userInfo.username || '';
   if(!username){
 		responseData.code = 501;
@@ -279,7 +278,7 @@ router.post('/ridicule/add',function(req,res,next){
 	//保存侃言内容到数据库
   console.log('0', title)
   Content.findOne({
-		title:title
+		contents:contents
 	}).then(function(contentInfo){
     if(contentInfo){
        responseData.code = 500;
@@ -307,6 +306,43 @@ router.post('/ridicule/add',function(req,res,next){
 		responseData.message = err;
 		res.json(responseData);
     return
+	})
+})
+/*
+ * 侃言编辑
+ */
+router.post('/ridicule/edit',function(req,res,next){
+  isLogin(req,res)
+  var id = req.body.id || ''
+  var category = req.body.category || 1; //文章的分类
+	var title = req.body.title || ''; //文章的标题
+	var posted = req.body.posted || false;//是否发布
+	var description = req.body.description; //文章的简介
+	var contents = req.body.contents; //文章的内容
+  console.log('侃言提交的数据',req.body)
+	
+	Content.findById({
+		_id:id
+	}).then(function(contentInfo){
+		if(!contentInfo){
+			responseData.code = 500;
+			responseData.message = '没有要编辑的数据！';
+			res.json(responseData);
+			return;
+		}
+		return Content.update({
+      _id:id
+    }, {
+      category: category,
+      title: title,
+      posted: posted,
+      description: description,
+      contents: contents
+    }).then(function(contentInfo){
+      responseData.code = 200;
+      responseData.message = '修改成功';
+      res.json(responseData);
+    })
 	})
 })
 /*
@@ -416,6 +452,58 @@ router.post('/comment/commentList',function(req,res,next){
 
   })
 
+
+})
+
+/*
+ * 用户注册 -- 小程序
+ */
+router.post('/user/WeChat/register',function(req,res,next){
+  console.log('参数', req.body)
+  console.log('参数1', req.body.username)
+  console.log('参数2', req.query)
+	var header = req.body.header;
+	var username = req.body.username;
+	var password = req.body.password;
+  var openid = req.body.openid;
+  // 查找数据库是否有同名的用户 两种方法其实一个意思
+  Wechatusers.findOne({
+      // openid:openid
+      username: username
+  }).then(function(userInfo){
+    if(userInfo){//有的话就标示数据库里面有这个用户
+      responseData.code = 500;
+      responseData.message = '用户名重复';
+      responseData.data = userInfo;
+      console.log(responseData)
+      res.cookie("account", username);
+      // 设置cookies 返回给客户端
+      req.cookies.set('userInfo',JSON.stringify({
+        _id : userInfo._id,
+        username : userInfo.username
+      }));
+      res.json(responseData);
+      return;
+    }
+    //保存用户注册的账号到数据库中
+    var wechatusers = new Wechatusers({
+      openid:openid,
+      header:header,
+      username:username,
+      password: password
+    });
+    return wechatusers.save().then(function(userInfo){
+      res.cookie("account", username);
+      req.cookies.set('userInfo',JSON.stringify({
+        _id : userInfo._id,
+        username : userInfo.username
+      }));
+      responseData.code = 200;
+      responseData.message = '登录成功';
+      responseData.data = userInfo;
+      res.json(responseData);
+    })
+  })
 
 })
 module.exports = router;

@@ -5,11 +5,12 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 //用户的表结构
 module.exports = new mongoose.Schema ({
-	 username:  String,
-     header: String,
-     openid: String,
-     isAdmin:{
-	     type:Boolean,
-         default:false
-     }
+  username:  String,
+  password: String,
+  header: String,
+  openid: String,
+  isAdmin:{
+    type:Boolean,
+      default:false
+  }
 })
