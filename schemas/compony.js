@@ -13,4 +13,11 @@ module.exports = new mongoose.Schema ({
   insurance: String,
   welfare: String,
   address: String,
+  financing: String, // 融资
+  wage: String, // 工资
+  technical: String, // 技术要求
+  startTime: {
+    type:Date,
+    default:new Date()
+  }
 })

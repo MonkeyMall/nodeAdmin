@@ -110,31 +110,31 @@ router.post('/user/register',function(req,res,next){
 	console.log(password)
 	console.log(repassword)
 	if(username == ''){
-		responseData.code = 01;
+		responseData.code = 500;
 		responseData.message = '用户名不能为空';
 		res.json(responseData);
 		return;
 	}
     if(username.length > 10){
-        responseData.code = 02;
+        responseData.code = 500;
         responseData.message = '用户名不能超过10个字符';
         res.json(responseData);
         return;
     }
     if(password.length < 6){
-        responseData.code = 03;
+        responseData.code = 500;
         responseData.message = '密码不能少于6位';
         res.json(responseData);
         return;
     }
 	if(password == ''){
-		responseData.code = 04;
+		responseData.code = 500;
 		responseData.message = '密码不能为空';
 		res.json(responseData);
 		return;
 	}
 	if(repassword != password){
-		responseData.code = 05;
+		responseData.code = 500;
 		responseData.message = '两次输入的密码不一致';
 		res.json(responseData);
 		return;
@@ -144,7 +144,7 @@ router.post('/user/register',function(req,res,next){
 		username:username
 	}).then(function(userInfo){
 		if(userInfo){//有的话就标示数据库里面有这个用户
-			responseData.code = 4;
+			responseData.code = 500;
 			responseData.message = '用户名重复';
 			res.json(responseData);
 			return;
@@ -153,11 +153,11 @@ router.post('/user/register',function(req,res,next){
 		var user = new User({
 			username:username,
 			password:password,
-            time:time
+      time:time
 		});
 		return user.save();
 	}).then(function(newUserInfo){
-		responseData.code = 8;
+		responseData.code = 200;
 		responseData.message = '注册成功';
 		res.json(responseData);
 	})
@@ -185,6 +185,9 @@ router.post('/company/add',function(req,res,next){
   var insurance = req.body.insurance || '' // 五险
   var welfare = req.body.welfare || ''  // 福利
   var address = req.body.address || ''  // 位置
+  var financing = req.body.financing || ''  // 融资
+  var wage = req.body.wage || ''  // 工资
+  var technical = req.body.technical || ''  // 技术要求
   console.log('创建公司',req.body)
 	
   // 查找数据库是否有同名的用户 两种方法其实一个意思
@@ -208,6 +211,9 @@ router.post('/company/add',function(req,res,next){
       insurance: insurance,
       welfare: welfare,
       address: address,
+      financing: financing,
+      wage: wage,
+      technical: technical,
       startTime:Number(Date.parse(new Date()))
     });
     console.log('查找公司2')
@@ -237,7 +243,9 @@ router.post('/company/edit',function(req,res,next){
   var insurance = req.body.insurance || '' // 五险
   var welfare = req.body.welfare || ''  // 福利
   var address = req.body.address || ''  // 位置
-  console.log('创建公司',req.body)
+  var financing = req.body.financing || ''  // 融资
+  var wage = req.body.wage || ''  // 工资
+  var technical = req.body.technical || ''  // 技术要求
 	
   // 查找数据库是否有同名的用户 两种方法其实一个意思
 	Compony.findById({
@@ -260,7 +268,9 @@ router.post('/company/edit',function(req,res,next){
       insurance: insurance,
       welfare: welfare,
       address: address,
-      startTime:Number(Date.parse(new Date()))
+      financing: financing,
+      wage: wage,
+      technical: technical
     }).then(function(componyInfo){
       responseData.code = 200;
       responseData.message = '修改成功';
@@ -521,21 +531,53 @@ router.post('/comment/commentList',function(req,res,next){
 
 
 })
-
+/*
+ * 用户列表
+ */
+router.get('/user/list',function(req,res,next){
+  isLogin(req,res)
+	console.log(req.query)
+    var name = req.query.name || '';
+    var page = Number(req.query.page || 1);
+    var limte = Number(req.query.limte || 10);
+    var pages = 0;
+    const searchObj = {}
+    if (name) {
+      searchObj.name = name
+    }
+    //从数据库中获取网站的分类名称
+    // Category.find().then(function(categories){
+        //查询数据库中的数据的条数
+        Wechatusers.count().then(function(count) {
+            pages = Math.ceil(count / limte);//客户端应该显示的总页数
+            page = Math.min(page, pages);//page取值不能超过pages
+            page = Math.max(page, 1);//page取值不能小于1
+            var skip = (page - 1) * limte;
+            //sort()排序  -1 降序 1 升序
+            //populate('category')  填充关联内容的字段的具体内容(关联字段在指定另一张表中的具体内容)
+            Wechatusers.find(searchObj).sort({_id: -1}).limit(limte).skip(skip).then(function (contents) {
+                responseData.code = 200;
+                responseData.message = "列表获取成功";
+                responseData.count = count;
+                responseData.data = contents;
+                res.json(responseData);
+                return;
+            })
+        })
+    // })
+})
 /*
  * 用户注册 -- 小程序
  */
 router.post('/user/WeChat/register',function(req,res,next){
-  console.log('参数', req.body)
-  console.log('参数1', req.body.username)
-  console.log('参数2', req.query)
 	var header = req.body.header;
 	var username = req.body.username;
 	var password = req.body.password;
   var openid = req.body.openid;
+  console.log('用户注册', req.body)
   // 查找数据库是否有同名的用户 两种方法其实一个意思
   Wechatusers.findOne({
-      // openid:openid
+      openid:openid,
       username: username
   }).then(function(userInfo){
     if(userInfo){//有的话就标示数据库里面有这个用户
