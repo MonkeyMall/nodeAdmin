@@ -12,6 +12,11 @@ var User = require('./models/users');
 var bodyParser = require('body-parser');
 //通过express创建app应用 => nodejs Http.createServer();
 var app = express();
+//设置跨域访问
+app.all('*', function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  next();
+});
 //加载模板处理模块
 var swig = require('swig');
 // var pm2 = require('pm2');

@@ -581,10 +581,9 @@ router.post('/user/WeChat/register',function(req,res,next){
       username: username
   }).then(function(userInfo){
     if(userInfo){//有的话就标示数据库里面有这个用户
-      responseData.code = 500;
-      responseData.message = '用户名重复';
+      responseData.code = 200;
+      responseData.message = '此用户已注册！';
       responseData.data = userInfo;
-      console.log(responseData)
       res.cookie("account", username);
       // 设置cookies 返回给客户端
       req.cookies.set('userInfo',JSON.stringify({
