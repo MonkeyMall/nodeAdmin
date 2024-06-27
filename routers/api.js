@@ -38,7 +38,9 @@ var getIp = function(req,res) {
     return ip;  
 };  
 function isLogin(req,res) {
-  var username = req.userInfo.username || '';
+  console.log('登录信息', req.cookies.get('userInfo'))
+  var username = req.cookies.get('userInfo') || req.userInfo.username || '';
+  console.log('登录信息username', username)
   if(!username){
 		responseData.code = 501;
 		responseData.message = "对不起,您还没有登陆";
@@ -570,6 +572,7 @@ router.get('/user/list',function(req,res,next){
  * 用户注册 -- 小程序
  */
 router.post('/user/WeChat/register',function(req,res,next){
+  console.log('用户注册', req.body)
 	var header = req.body.header;
 	var username = req.body.username;
 	var password = req.body.password;
@@ -583,6 +586,10 @@ router.post('/user/WeChat/register',function(req,res,next){
     if(userInfo){//有的话就标示数据库里面有这个用户
       responseData.code = 200;
       responseData.message = '此用户已注册！';
+      responseData.token = JSON.stringify({
+        _id : userInfo._id,
+        username : userInfo.username
+      });
       responseData.data = userInfo;
       res.cookie("account", username);
       // 设置cookies 返回给客户端
@@ -608,6 +615,10 @@ router.post('/user/WeChat/register',function(req,res,next){
       }));
       responseData.code = 200;
       responseData.message = '登录成功';
+      responseData.token = JSON.stringify({
+        _id : userInfo._id,
+        username : userInfo.username
+      });
       responseData.data = userInfo;
       res.json(responseData);
     })
