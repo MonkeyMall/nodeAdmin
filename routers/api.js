@@ -284,7 +284,7 @@ router.post('/company/edit',function(req,res,next){
  * 公司列表
  */
 router.get('/company/list',function(req,res,next){
-  isLogin(req,res)
+  // isLogin(req,res)
 	console.log(req.query)
     var name = req.query.name || '';
     var page = Number(req.query.page || 1);
@@ -428,7 +428,7 @@ router.post('/ridicule/edit',function(req,res,next){
  * 侃言列表
  */
 router.get('/ridicule/list',function(req,res,next){
-  isLogin(req,res)
+  // isLogin(req,res)
   var page = Number(req.query.page || 1);
   var limte = Number(req.query.limte || 10);
   var pages = 0;
@@ -501,7 +501,7 @@ router.post('/comment/add',function(req,res,next){
  * 侃言内容的评论列表
  */
 router.post('/comment/commentList',function(req,res,next){
-  isLogin(req,res)
+  // isLogin(req,res)
   var page = Number(req.query.page || 1);//req.query.page 获取?后面的页数
 	var limte = 10;
 	var pages = 0;
