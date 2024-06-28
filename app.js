@@ -94,14 +94,14 @@ app.use('/public',require('./routers/public'));
 //连接数据库
 mongoose.connect('mongodb://adminss:GRZn7EMs@47.121.121.204:27017/test',function(err){
     if(err){
-        console.log("数据库连接失败");
+        console.log("数据小宋库连接失败");
     }else{
-        console.log("数据库连接成功");
-        console.log("please open localhost:8080")
+        console.log("数据小宋库连接成功");
+        console.log("please open localhost:80")
         // child_process.exec(cmd + ' "'+url + '"');
         // child_process.exec(cmd + ' "'+url + '"');
         //监听http请求
-        app.listen(8080);
+        app.listen(80);
     }
 });
 

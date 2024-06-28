@@ -24,17 +24,15 @@ var multipart = require('multipart');
  *  的相关逻辑
  */
 //验证一下进入的是否是管理员
-router.use(function(req,res,next){
-	if(!req.userInfo.isAdmin){
-		res.send('对不起,只有管理员才能进入后台管理')
-	}
-	next();
-})
+// router.use(function(req,res,next){
+// 	if(!req.userInfo.isAdmin){
+// 		res.send('对不起,只有管理员才能进入后台管理')
+// 	}
+// 	next();
+// })
 //管理后台首页的路由
 router.get('/',function(req,res,next){
-	res.render('admin/index',{
-		userInfo:req.userInfo
-	});
+	res.render('admin/index');
 })
 //用户管理的路由
 router.get('/user',function(req,res,next){
