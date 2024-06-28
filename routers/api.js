@@ -9,6 +9,7 @@ var User = require('../models/users');
 var Content = require('../models/contents');
 var Comments = require('../models/comment');
 var CommentsCompony = require('../models/commentsCompony');
+var Componycollect = require('../models/componycollect');
 var Compony = require('../models/compony');
 var Wechatusers = require('../models/wechatusers');
 // var VideoList = require('../models/videoList');
@@ -675,5 +676,62 @@ router.post('/user/WeChat/register',function(req,res,next){
     })
   })
 
+})
+/*
+ * 用户收藏公司接口
+ */
+router.post('/compony/collect',function(req,res,next){
+  isLogin(req,res)
+	var componyId = req.body.componyId;//评论侃言的ID
+	var userId = Object.keys(req.userInfo).length === 0 ? setCookie(req) : req.userInfo;//评论人的ID
+	if(!componyId){
+		responseData.code = 500;
+		responseData.message = "没有要收藏的公司！";
+		res.json(responseData);
+		return;
+	}
+  let obj = {
+    componyId:componyId,
+		userId:userId,
+		startTime:Number(Date.parse(new Date()))
+  }
+	var componycollect = new Componycollect(obj);
+	return componycollect.save().then(function(newComment){
+    responseData.code = 200;
+    responseData.message = "公司收藏成功!";
+    res.json(responseData);
+	})
+	return;
+})
+/*
+ * 用户收藏公司列表
+ */
+router.get('/company/collect/list',function(req,res,next){
+  isLogin(req,res)
+  var userId = Object.keys(req.userInfo).length === 0 ? setCookie(req) : req.userInfo;//评论人的ID
+  var page = Number(req.query.page || 1);
+  var limte = Number(req.query.limte || 10);
+  var pages = 0;
+  const searchObj = {}
+  if (userId) {
+    searchObj.userId = userId
+  }
+  //查询数据库中的数据的条数
+  Componycollect.count().then(function(count) {
+      pages = Math.ceil(count / limte);//客户端应该显示的总页数
+      page = Math.min(page, pages);//page取值不能超过pages
+      page = Math.max(page, 1);//page取值不能小于1
+      var skip = (page - 1) * limte;
+      //sort()排序  -1 降序 1 升序
+      //populate('category')  填充关联内容的字段的具体内容(关联字段在指定另一张表中的具体内容)
+      Componycollect.find(searchObj).populate('componyId').sort({_id: -1}).limit(limte).skip(skip).then(function (componycollects) {
+          responseData.code = 200;
+          responseData.message = "列表获取成功";
+          responseData.count = count;
+          responseData.data = componycollects;
+          res.json(responseData);
+          return;
+      })
+  })
 })
 module.exports = router;
