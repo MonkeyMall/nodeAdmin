@@ -3,7 +3,7 @@
  */
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
-//视频的表结构
+//公司的表结构
 module.exports = new mongoose.Schema ({
   name: String,
   logo: String,

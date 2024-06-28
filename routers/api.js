@@ -5,16 +5,17 @@ var router = express.Router();//创建路由
 // var WXBizDataCrypt = require('../public/js/WXBizDataCrypt.js');//解密获取微信小程序的用户信息
 //引入模型类,操作数据库
 var User = require('../models/users');
-var Category = require('../models/category');
+// var Category = require('../models/category');
 var Content = require('../models/contents');
 var Comments = require('../models/comment');
+var CommentsCompony = require('../models/commentsCompony');
 var Compony = require('../models/compony');
 var Wechatusers = require('../models/wechatusers');
-var VideoList = require('../models/videoList');
-var Pushsource = require('../models/pushsource');
-var Banner = require('../models/banner');
-var Source = require('../models/source');
-var Plug = require('../models/plug');
+// var VideoList = require('../models/videoList');
+// var Pushsource = require('../models/pushsource');
+// var Banner = require('../models/banner');
+// var Source = require('../models/source');
+// var Plug = require('../models/plug');
 //统一一下ajax返回客户端的格式
 var responseData;
 router.use(function(req,res,next){
@@ -38,9 +39,8 @@ var getIp = function(req,res) {
     return ip;  
 };  
 function isLogin(req,res) {
-  console.log('登录信息', req.cookies.get('userInfo'))
-  var username = req.cookies.get('userInfo') || req.userInfo.username || '';
-  console.log('登录信息username', username)
+  console.log('登录信息username', setCookie(req))
+  var username = setCookie(req) || req.userInfo.username || '';
   if(!username){
 		responseData.code = 501;
 		responseData.message = "对不起,您还没有登陆";
@@ -49,7 +49,12 @@ function isLogin(req,res) {
 	}
 }
 function setCookie(req) {
-
+  if(req.headers.cookies.indexOf(';') > 0) {
+    var cookieArray = req.headers.cookies.split(';');
+    var usernameArray = cookieArray[cookieArray.length - 1].split('=');
+    var userId = JSON.parse(usernameArray[usernameArray.length - 1])._id
+    return userId
+  }
 }
 /*
  * 登陆逻辑
@@ -316,6 +321,58 @@ router.get('/company/list',function(req,res,next){
     // })
 })
 /*
+ * 公司的创建评论
+ */
+router.post('/commentsCompony/add',function(req,res,next){
+  isLogin(req,res)
+	var componyId = req.body.componyId;//公司的ID
+	var userId = Object.keys(req.userInfo).length === 0 ? setCookie(req) : req.userInfo;//评论人的ID
+	var componyContents =  req.body.componyContents;//评论内容
+	if(!componyId){
+		responseData.code = 500;
+		responseData.message = "没有要评论的公司！";
+		res.json(responseData);
+		return;
+	}
+	if(!componyContents){
+		responseData.code = 500;
+		responseData.message = "对不起,您提交的评论内容不能为空！";
+		res.json(responseData);
+		return;
+	}
+	//保存评论内容到数据库中
+	var commentsCompony = new CommentsCompony({
+		componyId:componyId,
+		userId:userId,
+		componyContents:componyContents,
+		startTime:Number(Date.parse(new Date()))
+	});
+	return commentsCompony.save().then(function(newComment){
+		CommentsCompony.find().populate('componyId').populate('userId').then(function(commentsCompony){
+			responseData.code = 200;
+			responseData.message = "您的公司评论保存成功了!!!";
+			responseData.data = commentsCompony;
+			res.json(responseData);
+		})
+	})
+	return;
+})
+/*
+ * 公司评论的列表
+ */
+router.get('/commentsCompony/list',function(req,res,next){
+	var componyId = req.query.componyId;//评论公司的ID
+  CommentsCompony.find({
+    componyId:componyId
+  }).populate('componyId').populate('userId').then(function(commentsCompony){
+    responseData.code = 200;
+    responseData.message = "公司评论获取成功";
+    responseData.data = commentsCompony;
+    res.json(responseData);
+    return;
+  })
+})
+/*
  * 侃言创建
  */
 router.post('/ridicule/add',function(req,res,next){
@@ -458,8 +515,8 @@ router.get('/ridicule/list',function(req,res,next){
 router.post('/comment/add',function(req,res,next){
   isLogin(req,res)
 	var contentId = req.body.contentId;//评论侃言的ID
-	var userId = req.userInfo;//评论人的ID
-  var creatUserId = req.body.creatUserId;//评论人的ID
+	var userId = Object.keys(req.userInfo).length === 0 ? setCookie(req) : req.userInfo;//评论人的ID
+  var creatUserId = req.body.creatUserId ? req.body.creatUserId : '';//评论人的ID
 	var commentContents =  req.body.commentContents;//评论内容
 	if(!contentId){
 		responseData.code = 500;
@@ -467,12 +524,6 @@ router.post('/comment/add',function(req,res,next){
 		res.json(responseData);
 		return;
 	}
-	// if(!userId){
-	// 	responseData.code = 500;
-	// 	responseData.message = "对不起,您还没有登陆";
-	// 	res.json(responseData);
-	// 	return;
-	// }
 	if(!commentContents){
 		responseData.code = 500;
 		responseData.message = "对不起,您提交的评论内容不能为空";
@@ -480,20 +531,20 @@ router.post('/comment/add',function(req,res,next){
 		return;
 	}
 	//保存评论内容到数据库中
-	var comment = new Comments({
-		contentId:contentId,
+  let obj = {
+    contentId:contentId,
 		userId:userId,
-    creatUserId:creatUserId,
 		commentContents:commentContents,
 		startTime:Number(Date.parse(new Date()))
-	});
+  }
+  if (creatUserId) {
+    obj.creatUserId = creatUserId
+  }
+	var comment = new Comments(obj);
 	return comment.save().then(function(newComment){
-		Comments.find().populate('userId').then(function(comments){
-			responseData.code = 200;
-			responseData.message = "您的评论保存成功了!!!";
-			responseData.data = comments;
-			res.json(responseData);
-		})
+    responseData.code = 200;
+    responseData.message = "您的评论保存成功了!!!";
+    res.json(responseData);
 	})
 	return;
 })
@@ -573,7 +624,7 @@ router.get('/user/list',function(req,res,next){
  */
 router.post('/user/WeChat/register',function(req,res,next){
   console.log('用户注册', req.body)
-	var header = req.body.header;
+	var header = 'public/images/monkeymall/logo.png';
 	var username = req.body.username;
 	var password = req.body.password;
   var openid = req.body.openid;
