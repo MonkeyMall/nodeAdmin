@@ -368,7 +368,12 @@ router.get('/commentsCompony/list',function(req,res,next){
   }).populate('componyId').populate('userId').then(function(commentsCompony){
     responseData.code = 200;
     responseData.message = "公司评论获取成功";
+    console.log('数据', commentsCompony)
     responseData.data = commentsCompony;
+    // responseData.data = {
+    //   header: commentsCompony.header,
+    //   username: commentsCompony.username
+    // };
     res.json(responseData);
     return;
   })
@@ -682,25 +687,46 @@ router.post('/user/WeChat/register',function(req,res,next){
  */
 router.post('/compony/collect',function(req,res,next){
   isLogin(req,res)
-	var componyId = req.body.componyId;//评论侃言的ID
-	var userId = Object.keys(req.userInfo).length === 0 ? setCookie(req) : req.userInfo;//评论人的ID
+	var userId = Object.keys(req.userInfo).length === 0 ? setCookie(req) : req.userInfo;//收藏人的ID
+	var componyId = req.body.componyId;//公司的ID
+  var type = req.body.type;//收藏类型 1 收藏 2 取消收藏
 	if(!componyId){
 		responseData.code = 500;
 		responseData.message = "没有要收藏的公司！";
 		res.json(responseData);
 		return;
 	}
-  let obj = {
+  var obj = {
     componyId:componyId,
 		userId:userId,
 		startTime:Number(Date.parse(new Date()))
   }
 	var componycollect = new Componycollect(obj);
-	return componycollect.save().then(function(newComment){
-    responseData.code = 200;
-    responseData.message = "公司收藏成功!";
-    res.json(responseData);
-	})
+  if (type == 1) {
+    // 收藏公司
+    return componycollect.save().then(function(newComment){
+      responseData.code = 200;
+      responseData.message = "公司收藏成功!";
+      res.json(responseData);
+    })
+  } else {
+    // 取消收藏
+    return Componycollect.findOne({
+      componyId:componyId,
+			userId:userId
+    }).then(function(componycollect){
+      Componycollect.remove({
+        _id:componycollect._id
+      }).then(function(newComment){
+        responseData.code = 200;
+        responseData.message = "公司取消收藏成功!";
+        res.json(responseData);
+      })
+    })
+
+    
+  }
+	
 	return;
 })
 /*
@@ -732,6 +758,29 @@ router.get('/company/collect/list',function(req,res,next){
           res.json(responseData);
           return;
       })
+  })
+})
+/*
+ * 查询指定用户是否收藏了指定公司
+ */
+router.get('/company/collect/isCollect',function(req,res,next){
+  isLogin(req,res)
+  var userId = Object.keys(req.userInfo).length === 0 ? setCookie(req) : req.userInfo;//评论人的ID
+  var componyId = req.query.componyId;//公司的ID
+  Componycollect.findOne({
+    userId: userId || '',
+    componyId: componyId
+  }).then(function (componycollects) {
+    console.log(componycollects, 11111)
+    responseData.code = 200;
+    if (componycollects) {
+      responseData.isCollect = 1;
+    } else {
+      responseData.isCollect = 0;
+    }
+    responseData.message = "获取成功";
+    res.json(responseData);
+    return;
   })
 })
 module.exports = router;
