@@ -388,35 +388,8 @@ router.post('/ridicule/add',function(req,res,next){
 	var posted = req.body.posted || false;//是否发布
 	var description = req.body.description || ''; //文章的简介
 	var contents = req.body.contents || ''; //文章的内容
+  var userId = Object.keys(req.userInfo).length === 0 ? setCookie(req) : req.userInfo;//创建人的ID
 	console.log('侃言提交的数据',req.body)
-	// if(!category){//表示没有这条数据
-	// 	res.render('admin/error',{
-	// 		userInfo:req.userInfo,
-	// 		errorMessage:"文章分类不能为空!"
-	// 	})
-	// 	return Promise.reject();
-	// }
-	// if(!title){//表示没有这条数据
-	// 	res.render('admin/error',{
-	// 		userInfo:req.userInfo,
-	// 		errorMessage:"文章标题不能为空!"
-	// 	})
-	// 	return Promise.reject();
-	// }
-	// if(!description){//表示没有这条数据
-	// 	res.render('admin/error',{
-	// 		userInfo:req.userInfo,
-	// 		errorMessage:"文章简介不能为空!"
-	// 	})
-	// 	return Promise.reject();
-	// }
-	// if(!contents){//表示没有这条数据
-	// 	res.render('admin/error',{
-	// 		userInfo:req.userInfo,
-	// 		errorMessage:"文章内容不能为空!"
-	// 	})
-	// 	return Promise.reject();
-	// }
 	//保存侃言内容到数据库
   console.log('0', title)
   Content.findOne({
@@ -434,6 +407,7 @@ router.post('/ridicule/add',function(req,res,next){
       posted:posted,
       description:description,
       content:contents,
+      userId: userId,
       startTime:Date.parse(new Date())
     });
     return content.save().then(function(contents){
@@ -505,6 +479,37 @@ router.get('/ridicule/list',function(req,res,next){
           //sort()排序  -1 降序 1 升序
           //populate('category')  填充关联内容的字段的具体内容(关联字段在指定另一张表中的具体内容)
           Content.find().sort({_id: -1}).limit(limte).skip(skip).then(function (contents) {
+              responseData.code = 200;
+              responseData.message = "列表获取成功";
+              responseData.count = count;
+              responseData.data = contents;
+              res.json(responseData);
+              return;
+          })
+      })
+  // })
+})
+/*
+ * 我的侃言列表
+ */
+router.get('/ridicule/my/list',function(req,res,next){
+  isLogin(req,res)
+  var userId = Object.keys(req.userInfo).length === 0 ? setCookie(req) : req.userInfo;//创建人的ID
+  var page = Number(req.query.page || 1);
+  var limte = Number(req.query.limte || 10);
+  var pages = 0;
+  // Category.find().then(function(categories){
+      //查询数据库中的数据的条数
+      Content.count().then(function(count) {
+          pages = Math.ceil(count / limte);//客户端应该显示的总页数
+          page = Math.min(page, pages);//page取值不能超过pages
+          page = Math.max(page, 1);//page取值不能小于1
+          var skip = (page - 1) * limte;
+          //sort()排序  -1 降序 1 升序
+          //populate('category')  填充关联内容的字段的具体内容(关联字段在指定另一张表中的具体内容)
+          Content.find({
+            userId: userId
+          }).sort({_id: -1}).limit(limte).skip(skip).then(function (contents) {
               responseData.code = 200;
               responseData.message = "列表获取成功";
               responseData.count = count;

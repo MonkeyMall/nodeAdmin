@@ -15,6 +15,10 @@ module.exports = new mongoose.Schema ({
 		// type: mongoose.Schema.Types.ObjectId,
 		// ref:'Category'//引用另一张表
 	 },
+   userId:{
+    type: mongoose.Schema.Types.ObjectId,//关联字段
+    ref:'Wechatusers'//引用另一张表
+	 },
 	 title:  String,
    posted:{
 		type:Boolean,
