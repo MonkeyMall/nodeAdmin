@@ -386,8 +386,8 @@ router.post('/ridicule/add',function(req,res,next){
   var category = req.body.category || 1; //文章的分类
 	var title = req.body.title || ''; //文章的标题
 	var posted = req.body.posted || false;//是否发布
-	var description = req.body.description; //文章的简介
-	var contents = req.body.contents; //文章的内容
+	var description = req.body.description || ''; //文章的简介
+	var contents = req.body.contents || ''; //文章的内容
 	console.log('侃言提交的数据',req.body)
 	// if(!category){//表示没有这条数据
 	// 	res.render('admin/error',{
