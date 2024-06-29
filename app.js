@@ -97,11 +97,11 @@ mongoose.connect('mongodb://adminss:GRZn7EMs@47.121.121.204:27017/test',function
         console.log("数据小宋库连接失败");
     }else{
         console.log("数据小宋库连接成功");
-        console.log("please open localhost:80")
+        console.log("please open localhost:8080")
         // child_process.exec(cmd + ' "'+url + '"');
         // child_process.exec(cmd + ' "'+url + '"');
         //监听http请求
-        app.listen(80);
+        app.listen(8080);
     }
 });
 
