@@ -50,7 +50,7 @@ function isLogin(req,res) {
 	}
 }
 function setCookie(req) {
-  if(req.headers.cookies.indexOf(';') > 0) {
+  if(req.headers.cookies && req.headers.cookies.indexOf(';') > 0) {
     var cookieArray = req.headers.cookies.split(';');
     var usernameArray = cookieArray[cookieArray.length - 1].split('=');
     var userId = JSON.parse(usernameArray[usernameArray.length - 1])._id
@@ -196,6 +196,13 @@ router.post('/company/add',function(req,res,next){
   var financing = req.body.financing || ''  // 融资
   var wage = req.body.wage || ''  // 工资
   var technical = req.body.technical || ''  // 技术要求
+  var website = req.body.website || '' // 官网
+  var registeredCapital = req.body.registeredCapital || '' // 注册资本
+  var overTime = req.body.overTime || '' // 加班时间
+  var workTime = req.body.workTime || '' // 上班时间
+  var createdDate = req.body.createdDate || '' // 成立时间
+  var addressZc = req.body.addressZc || ''  // 注册位置
+
   console.log('创建公司',req.body)
 	
   // 查找数据库是否有同名的用户 两种方法其实一个意思
@@ -222,6 +229,12 @@ router.post('/company/add',function(req,res,next){
       financing: financing,
       wage: wage,
       technical: technical,
+      website: website,
+      registeredCapital: registeredCapital,
+      overTime: overTime,
+      workTime: workTime,
+      createdDate: createdDate,
+      addressZc: addressZc,
       startTime:Number(Date.parse(new Date()))
     });
     console.log('查找公司2')
@@ -254,7 +267,12 @@ router.post('/company/edit',function(req,res,next){
   var financing = req.body.financing || ''  // 融资
   var wage = req.body.wage || ''  // 工资
   var technical = req.body.technical || ''  // 技术要求
-	
+	var website = req.body.website || '' // 官网
+  var registeredCapital = req.body.registeredCapital || '' // 注册资本
+  var overTime = req.body.overTime || '' // 加班时间
+  var workTime = req.body.workTime || '' // 上班时间
+  var createdDate = req.body.createdDate || '' // 成立时间
+  var addressZc = req.body.addressZc || ''  // 注册位置
   // 查找数据库是否有同名的用户 两种方法其实一个意思
 	Compony.findById({
 		_id:id
@@ -278,7 +296,13 @@ router.post('/company/edit',function(req,res,next){
       address: address,
       financing: financing,
       wage: wage,
-      technical: technical
+      technical: technical,
+      website: website,
+      registeredCapital: registeredCapital,
+      overTime: overTime,
+      workTime: workTime,
+      createdDate: createdDate,
+      addressZc: addressZc
     }).then(function(componyInfo){
       responseData.code = 200;
       responseData.message = '修改成功';
